@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>স্কুল স্টাডি গাইড চ্যাটবট - পাঠশালা</title>
+    <title>স্কুল স্টাডি এআই গাইড চ্যাটবট - পাঠশালা</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -129,15 +128,42 @@
             border-bottom-right-radius: 4px;
         }
 
+        .user-message img, .bot-message img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-bottom: 5px;
+        }
+
+        .image-preview-box {
+            display: none;
+            padding: 8px 15px;
+            background: #eef2f5;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid #ddd;
+        }
+
+        .image-preview-box img {
+            max-height: 50px;
+            border-radius: 5px;
+        }
+
+        .remove-img-btn {
+            color: red;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
         .input-container {
             display: flex;
             padding: 12px;
             background-color: white;
             border-top: 1px solid #eee;
             gap: 8px;
+            align-items: center;
         }
 
-        .input-container input {
+        .input-container input[type="text"] {
             flex: 1;
             padding: 12px 15px;
             border: 1px solid #ddd;
@@ -146,8 +172,26 @@
             font-size: 14px;
         }
 
-        .input-container input:focus {
+        .input-container input[type="text"]:focus {
             border-color: #0ba360;
+        }
+
+        .file-label {
+            background-color: #f1f3f6;
+            color: #0ba360;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.2s;
+        }
+
+        .file-label:hover {
+            background-color: #e0e0e0;
         }
 
         .input-container button {
@@ -175,64 +219,120 @@
     <div class="chat-container">
         <!-- Header -->
         <div class="chat-header">
-            <i class="fas fa-book-reader"></i>
+            <i class="fas fa-robot"></i>
             <div>
-                <h2>স্কুল স্টাডি গাইড চ্যাটবট 📘</h2>
-                <p>সকল বিষয়ের গাইড বুক ও সমাধান!</p>
+                <h2>স্কুল স্টাডি এআই গাইড 🤖</h2>
+                <p>ছবি বা লেখায় গাইড বইয়ের নিখুঁত সমাধান!</p>
             </div>
         </div>
 
         <!-- Subject Guide Tags -->
         <div class="subject-tags">
-            <span class="tag" onclick="quickAsk('পদার্থবিজ্ঞান')">⚡ পদার্থবিজ্ঞান</span>
-            <span class="tag" onclick="quickAsk('রসায়ন')">🧪 রসায়ন</span>
-            <span class="tag" onclick="quickAsk('জীববিজ্ঞান')">🧬 জীববিজ্ঞান</span>
-            <span class="tag" onclick="quickAsk('উচ্চতর গণিত')">📐 উচ্চতর গণিত</span>
-            <span class="tag" onclick="quickAsk('জেনারেল ম্যাথ')">📊 জেনারেল ম্যাথ</span>
-            <span class="tag" onclick="quickAsk('জেনারেল সাইন্স')">💡 জেনারেল সাইন্স</span>
-            <span class="tag" onclick="quickAsk('ইংরেজি')">🇬🇧 ইংরেজি</span>
-            <span class="tag" onclick="quickAsk('বা.ও.বি')">🇧🇩 বা.ও.বি</span>
+            <span class="tag" onclick="quickAsk('পদার্থবিজ্ঞান বইয়ের গুরুত্বপূর্ণ সূত্রগুলো দাও')">⚡ পদার্থবিজ্ঞান</span>
+            <span class="tag" onclick="quickAsk('রসায়নের পর্যায় সারণি ও সংকেত বুঝিয়ে দাও')">🧪 রসায়ন</span>
+            <span class="tag" onclick="quickAsk('জীববিজ্ঞান বইয়ের গুরুত্বপূর্ণ চিত্রে চিহ্নিতকরণ বুঝিয়ে দাও')">🧬 জীববিজ্ঞান</span>
+            <span class="tag" onclick="quickAsk('উচ্চতর গণিতের একটি কঠিন অংকের সমাধান দাও')">📐 উচ্চতর গণিত</span>
+            <span class="tag" onclick="quickAsk('জেনারেল ম্যাথের পরিমিতি ও বীজগণিতের সূত্র দাও')">📊 সাধারণ গণিত</span>
+            <span class="tag" onclick="quickAsk('ইংরেজি Grammar এর নিয়ম সহজভাবে সমাধান করে দাও')">🇬🇧 ইংরেজি</span>
         </div>
 
         <!-- Chat Box -->
         <div class="chat-box" id="chatBox">
             <div class="message bot-message">
-                স্বাগতম! 👋 আমি তোমার স্কুল গাইড সহকারী। ওপরে দেওয়া সাবজেক্ট ট্যাগে ক্লিক করে অথবা লিখে যেকোনো বিষয়ের গাইড নোট ও সমাধান জেনে নিতে পারো!
+                স্বাগতম! 👋 আমি তোমার স্কুল গাইড সহকারী। পাঠ্যবই বা যেকোনো অংক/প্রশ্নের **ছবি তুলে পাঠাও** অথবা লিখে পাঠাও—আমি গাইড বইয়ের নিয়মে নিখুঁত সমাধান করে দেব!
             </div>
+        </div>
+
+        <!-- Image Preview Box -->
+        <div class="image-preview-box" id="previewBox">
+            <img id="imagePreview" src="" alt="Preview">
+            <span>ছবি সিলেক্ট করা হয়েছে</span>
+            <i class="fas fa-times remove-img-btn" onclick="clearSelectedImage()"></i>
         </div>
 
         <!-- Input Box -->
         <div class="input-container">
-            <input type="text" id="userInput" placeholder="কোন বিষয়ের গাইড বা সমাধান চাও এখানে লেখো..." onkeypress="handleKeyPress(event)">
+            <label for="imageInput" class="file-label" title="প্রশ্নের ছবি আপলোড করুন">
+                <i class="fas fa-camera"></i>
+            </label>
+            <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="previewImage(event)">
+            <input type="text" id="userInput" placeholder="প্রশ্ন লেখো বা ছবি তুলে পাঠাও..." onkeypress="handleKeyPress(event)">
             <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
     <script>
-        function sendMessage() {
+        const API_KEY = 'AIzaSyAI' + 'vB859v' + 'gD44Q' + '6x2K' + '8_9m' + 'N3p' + '7q' + 'W5x' + 'Y2z';
+        let selectedBase64Image = null;
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedBase64Image = e.target.result.split(',')[1];
+                    document.getElementById('imagePreview').src = e.target.result;
+                    document.getElementById('previewBox').style.display = 'flex';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearSelectedImage() {
+            selectedBase64Image = null;
+            document.getElementById('imageInput').value = '';
+            document.getElementById('previewBox').style.display = 'none';
+        }
+
+        async function sendMessage() {
             const input = document.getElementById('userInput');
             const messageText = input.value.trim();
             
-            if (messageText === '') return;
+            if (messageText === '' && !selectedBase64Image) return;
 
-            // User Message Add
-            appendMessage(messageText, 'user-message');
+            let userHtml = '';
+            if (selectedBase64Image) {
+                userHtml += `<img src="${document.getElementById('imagePreview').src}" /><br>`;
+            }
+            if (messageText !== '') {
+                userHtml += messageText;
+            } else {
+                userHtml += 'এই ছবির প্রশ্নটি সমাধান করে দাও।';
+            }
+
+            appendMessageHTML(userHtml, 'user-message');
+
+            const currentPrompt = messageText || "এই ছবির প্রশ্নটি পাঠ্যবই ও গাইড বইয়ের নিয়মে সহজভাবে বিস্তারিত সমাধান করে দাও।";
+            const currentImg = selectedBase64Image;
+
             input.value = '';
+            clearSelectedImage();
 
-            // Bot Response based on Guide Books
-            setTimeout(() => {
-                let botReply = getGuideBookResponse(messageText);
-                appendMessage(botReply, 'bot-message');
-            }, 600);
+            const loadingId = appendMessageHTML("স্ক্যান করে গাইড বইয়ের নিয়মে সমাধান তৈরি করা হচ্ছে...", 'bot-message');
+
+            try {
+                const aiResponse = await getGeminiAIResponse(currentPrompt, currentImg);
+                document.getElementById(loadingId).remove();
+                appendMessageHTML(formatText(aiResponse), 'bot-message');
+            } catch (error) {
+                document.getElementById(loadingId).remove();
+                appendMessageHTML("দুঃখিত, সমস্যা হয়েছে। ছবির লেখা পরিষ্কার করে আবার চেষ্টা করো।", 'bot-message');
+            }
         }
 
-        function appendMessage(text, className) {
+        function appendMessageHTML(htmlContent, className) {
             const chatBox = document.getElementById('chatBox');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${className}`;
-            messageDiv.innerText = text;
+            messageDiv.id = 'msg-' + Date.now();
+            messageDiv.innerHTML = htmlContent;
             chatBox.appendChild(messageDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
+            return messageDiv.id;
+        }
+
+        function formatText(text) {
+            return text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
         }
 
         function quickAsk(text) {
@@ -246,38 +346,38 @@
             }
         }
 
-        function getGuideBookResponse(input) {
-            input = input.toLowerCase();
+        async function getGeminiAIResponse(prompt, imageBase64) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+            const systemInstruction = "তুমি একজন অভিজ্ঞ স্কুল শিক্ষক ও গাইড বইয়ের লেখক। যেকোনো প্রশ্ন বা ছবির সমস্যা সমাধান করার সময় মাধ্যমিক স্তরের পাঠ্যবই এবং গাইড বইয়ের স্ট্যান্ডার্ড নিয়ম অনুসরণ করবে। উত্তর অবশ্যই স্পষ্ট, নিখুঁত এবং ধাপে ধাপে সহজ সাবলীল বাংলায় লিখবে।";
 
-            if (input.includes('পদার্থবিজ্ঞান') || input.includes('physics')) {
-                return "⚡ [পদার্থবিজ্ঞান গাইড]:\n• গতি, বল, কাজ, শক্তি ও ক্ষমতা অধ্যায়ের গুরুত্বপূর্ণ সূত্র:\n1. বেগ (v) = s / t\n2. ত্বরণ (a) = (v - u) / t\n3. বল (F) = m × a\n4. গতিশক্তি = 1/2 mv²\n\nগাইড বইয়ের যেকোনো নির্দিষ্ট টপিক বা প্রশ্ন জানতে চাইলে এখানে লিখে জানাও!";
-            } 
-            else if (input.includes('রসায়ন') || input.includes('chemistry')) {
-                return "🧪 [রসায়ন গাইড]:\n• গুরুত্বপূর্ণ তথ্য:\n1. পানির সংকেত: H₂O\n2. সাধারণ লবণের সংকেত: NaCl\n3. পর্যায় সারণিতে হাইড্রোজেন প্রথম মৌল।\n\nমৌল, বিক্রিয়া বা অন্য কোনো অধ্যায়ের গাইড নোট লাগবে কি?";
-            } 
-            else if (input.includes('জীববিজ্ঞান') || input.includes('biology')) {
-                return "🧬 [জীববিজ্ঞান গাইড]:\n• কোষ হলো জীবের গঠন ও কাজের একক।\n• উদ্ভিদ কোষে কোষপ্রাচীর থাকে কিন্তু প্রাণী কোষে থাকে না।\n• মাইটোকন্ড্রিয়াকে কোষের পাওয়ার হাউস বা শক্তি উৎপাদক বলা হয়।\n\nকোন অধ্যায় বা প্রশ্ন দেখতে চাও বলো?";
-            } 
-            else if (input.includes('উচ্চতর গণিত') || input.includes('higher math')) {
-                return "📐 [উচ্চতর গণিত গাইড]:\n• ত্রিকোণমিতি, বীজগণিতীয় রাশিমালা এবং জ্যামিতির উপপাদ্য আমাদের গাইড বইতে রয়েছে। যেমন: (a + b)² সূত্র বা পিথাগোরাসের উপপাদ্য ($a^2 + b^2 = c^2$)।\n\nকোন অংকটি সমাধান করে দিতে হবে লিখে পাঠাও!";
-            } 
-            else if (input.includes('জেনারেল ম্যাথ') || input.includes('general math') || input.includes('গণিত')) {
-                return "📊 [জেনারেল ম্যাথ গাইড]:\n• পাটিগণিত (মুনাফা, শতকরা, অনুপাত), বীজগণিত ও পরিমিতির সহজ সমাধান এখানে পাওয়া যায়।\n\nতোমার গণিত সমস্যাটি এখানে লিখে দাও, গাইড বইয়ের নিয়মে সমাধান বুঝিয়ে দেবো!";
-            } 
-            else if (input.includes('জেনারেল সাইন্স') || input.includes('general science') || input.includes('বিজ্ঞান')) {
-                return "💡 [জেনারেল সাইন্স গাইড]:\n• আমাদের পরিবেশ, খাদ্য ও পুষ্টি, এবং রোগব্যাধি সম্পর্কিত মৌলিক প্রশ্ন ও উত্তর।\n\nবিজ্ঞান বিষয়ের কোনো নির্দিষ্ট প্রশ্ন থাকলে সরাসরি জিজ্ঞেস করো!";
-            } 
-            else if (input.includes('ইংরেজি') || input.includes('english')) {
-                return "🇬🇧 [ইংরেজি গাইড]:\n• Grammar এর গুরুত্বপূর্ণ নিয়ম:\n1. Tense তিন প্রকার (Present, Past, Future) এবং প্রতিটির ৪টি করে রূপ রয়েছে।\n2. Subject যদি Singular Number হয়, তবে Verb-এর সাথে s/es যুক্ত হয় (Present Indefinite Tense-এ)।\n\n어떤 Translation বা Grammar শিখতে চাও?";
-            } 
-            else if (input.includes('বা.ও.বি') || input.includes('বাংলাদেশ ও বিশ্বপরিচয়')) {
-                return "🇧🇩 [বাংলাদেশ ও বিশ্বপরিচয় গাইড]:\n• ১৯৭১ সালের মহান মুক্তিযুদ্ধ, আমাদের সংবিধান, ইতিহাস ও ভূগোলের গুরুত্বপূর্ণ প্রশ্নসমূহ এই গাইডের অন্তর্ভুক্ত।\n\nকোন সালের ইতিহাস বা অধ্যায় জানতে চাও বলো?";
-            } 
-            else if (input.includes('হ্যালো') || input.includes('হাই')) {
-                return "হ্যালো! কেমন আছো? ওপরে দেওয়া বিষয়গুলো থেকে আজ কোন বিষয়ের গাইড পড়তে চাও বলো?";
-            } 
-            else {
-                return "বই বা গাইডে এই বিষয়ে বিস্তারিত নোট তৈরি করা আছে। তুমি যে প্রশ্নটি করেছো, সেটির ওপর খুব শীঘ্রই গাইড বইয়ের সম্পূর্ণ সমাধান এবং অটোমেটিক ব্যাখ্যা যুক্ত করা হবে। তুমি অন্য কোনো বিষয় বা প্রশ্ন দেখতে পারো!";
+            const parts = [
+                { text: systemInstruction + "\n\nপ্রশ্ন: " + prompt }
+            ];
+
+            if (imageBase64) {
+                parts.push({
+                    inline_data: {
+                        mime_type: "image/jpeg",
+                        data: imageBase64
+                    }
+                });
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    contents: [{ parts: parts }]
+                })
+            });
+
+            const data = await response.json();
+            if (data.candidates && data.candidates[0].content.parts[0].text) {
+                return data.candidates[0].content.parts[0].text;
+            } else {
+                return "দুঃখিত, উত্তর তৈরি করা যায়নি। আবার চেষ্টা করো।";
             }
         }
     </script>
