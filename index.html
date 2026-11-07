@@ -1,91 +1,36 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>স্কুল স্টাডি এআই গাইড</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f0f2f5; display: flex; flex-direction: column; height: 100vh; }
-        .header { background-color: #0084ff; color: white; padding: 15px; text-align: center; font-size: 1.2rem; font-weight: bold; }
-        .chat-container { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .message { max-width: 85%; padding: 12px 16px; border-radius: 15px; line-height: 1.5; font-size: 0.95rem; word-break: break-word; }
-        .bot-message { background-color: white; color: #333; align-self: flex-start; border-bottom-left-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .user-message { background-color: #0084ff; color: white; align-self: flex-end; border-bottom-right-radius: 3px; }
-        .input-container { background-color: white; padding: 10px 15px; display: flex; align-items: center; gap: 10px; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); }
-        .input-container input[type="text"] { flex: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; font-size: 0.95rem; }
-        .input-container button { background-color: #0084ff; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        .input-container button:active { background-color: #006dd9; }
-    </style>
-</head>
-<body>
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var userText = "";
+    
+    if (data.contents && data.contents[0] && data.contents[0].parts && data.contents[0].parts[0].text) {
+      userText = data.contents[0].parts[0].text.toLowerCase().trim();
+    } else if (data.prompt) {
+      userText = data.prompt.toLowerCase().trim();
+    }
 
-    <div class="header">স্কুল স্টাডি এআই গাইড</div>
+    // আপনার গাইড বই, পাঠ্যবই এবং বোর্ড প্রশ্নের ডেটাবেজ
+    var studyDatabase = {
+      "সালোকসংশ্লেষণ": "যে জৈব প্রক্রিয়ায় উদ্ভিদের সবুজ অংশ সূর্যালোকের উপস্থিতিতে কার্বন ডাই অক্সাইড ও পানির সাহায্যে শর্করা জাতীয় খাদ্য প্রস্তুত করে এবং উপজাত হিসেবে অক্সিজেন ত্যাগ করে, তাকে সালোকসংশ্লেষণ বলে। (নবম-দশম শ্রেণি বিজ্ঞান বই)",
+      "নিউটনের প্রথম সূত্র": "বাহ্যিক কোনো বল প্রয়োগ না করলে স্থির বস্তু চিরকাল স্থির থাকবে এবং গতিশীল বস্তু সমদ্রুতিতে সরল পথে চলতে থাকবে। (পদার্থবিজ্ঞান গাইড)",
+      "বোর্ড প্রশ্ন ২০১৯": "২০১৯ সালের পদার্থবিজ্ঞান বোর্ড প্রশ্নের সমাধান: ১. গতি ও বল সম্পর্কিত গাণিতিক সমস্যা... ২. নিউটনের সূত্রসমূহের ব্যাখ্যা..."
+    };
 
-    <div class="chat-container" id="chatContainer">
-        <div class="message bot-message">হ্যালো! আমি আপনার স্টাডি এআই অ্যাসিস্ট্যান্ট। পড়াশোনা সংক্রান্ত যেকোনো প্রশ্ন আমাকে করতে পারেন।</div>
-    </div>
+    var replyText = "দুঃখিত, এই প্রশ্ন বা টপিক সংক্রান্ত উত্তর এই মুহূর্তে আমার ডেটাবেজে নেই। অন্য কোনো প্রশ্ন বা অধ্যায়ের নাম লিখে সার্চ করুন।";
 
-    <div class="input-container">
-        <input type="text" id="userInput" placeholder="আপনার প্রশ্ন এখানে লিখুন..." onkeypress="handleKeyPress(event)">
-        <button onclick="sendMessage()">পাঠান</button>
-    </div>
+    // ব্যবহারকারীর লেখার সাথে ডেটাবেজের কোনো টপিক মিলে গেলে সেই উত্তরটি দিয়ে দেবে
+    for (var key in studyDatabase) {
+      if (userText.indexOf(key.toLowerCase()) !== -1) {
+        replyText = studyDatabase[key];
+        break;
+      }
+    }
 
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrSfFLAyPy8rmRB7eoeTUb9lpvHuug7wZcUu7Gblj6IA4YwcYhI8pltwGUmXQmw_ny0Q/exec";
+    return ContentService.createTextOutput(JSON.stringify({ text: replyText }))
+      .setMimeType(ContentService.MimeType.JSON);
 
-        async function sendMessage() {
-            const inputField = document.getElementById('userInput');
-            const chatContainer = document.getElementById('chatContainer');
-            const userText = inputField.value.trim();
-
-            if (!userText) return;
-
-            // ইউজারের মেসেজ স্ক্রিনে যোগ করা
-            const userMsgDiv = document.createElement('div');
-            userMsgDiv.className = 'message user-message';
-            userMsgDiv.innerText = userText;
-            chatContainer.appendChild(userMsgDiv);
-
-            inputField.value = '';
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-
-            // লোডিং মেসেজ তৈরি
-            const botMsgDiv = document.createElement('div');
-            botMsgDiv.className = 'message bot-message';
-            botMsgDiv.innerText = "চিন্তা করছি...";
-            chatContainer.appendChild(botMsgDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ contents: [{ parts: [{ text: userText }] }] })
-                });
-
-                const data = await response.json();
-                
-                // জেমিনি বা অ্যাপস স্ক্রিপ্ট থেকে আসা উত্তর বের করা
-                let botReply = "দুঃখিত, কোনো উত্তর পাওয়া যায়নি।";
-                if (data.candidates && data.candidates[0].content.parts[0].text) {
-                    botReply = data.candidates[0].content.parts[0].text;
-                } else if (data.text) {
-                    botReply = data.text;
-                }
-
-                botMsgDiv.innerText = botReply;
-            } catch (error) {
-                botMsgDiv.innerText = "সংযোগ স্থাপন করতে সমস্যা হচ্ছে। আবার চেষ্টা করুন।";
-            }
-
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        }
-    </script>
-</body>
-</html>
+  }, catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ text: "ত্রুটি হয়েছে: " + error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
