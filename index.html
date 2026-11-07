@@ -6,140 +6,85 @@
     <title>স্কুল স্টাডি এআই গাইড</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f0f2f5; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        .header { background-color: #008069; color: white; padding: 15px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex-shrink: 0; }
-        .header h1 { font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
-        .chat-container { flex: 1; padding: 15px; padding-bottom: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .message { max-width: 85%; padding: 12px 16px; border-radius: 15px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
-        .bot-message { background-color: white; color: #333; align-self: flex-start; border-top-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .user-message { background-color: #d9fdd3; color: #111; align-self: flex-end; border-top-right-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .input-container { background-color: #f0f2f5; padding: 10px 15px; padding-bottom: 45px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #ddd; flex-shrink: 0; width: 100%; }
-        .input-container input[type="text"] { flex: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-size: 0.95rem; background: white; }
-        .input-container button { background-color: #008069; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: background 0.2s; flex-shrink: 0; }
-        .input-container button:active { background-color: #006654; }
-        .image-preview { max-width: 150px; border-radius: 8px; margin-bottom: 5px; display: block; }
+        body { background-color: #f0f2f5; display: flex; flex-direction: column; height: 100vh; }
+        .header { background-color: #0084ff; color: white; padding: 15px; text-align: center; font-size: 1.2rem; font-weight: bold; }
+        .chat-container { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 15px; line-height: 1.5; font-size: 0.95rem; word-break: break-word; }
+        .bot-message { background-color: white; color: #333; align-self: flex-start; border-bottom-left-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .user-message { background-color: #0084ff; color: white; align-self: flex-end; border-bottom-right-radius: 3px; }
+        .input-container { background-color: white; padding: 10px 15px; display: flex; align-items: center; gap: 10px; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); }
+        .input-container input[type="text"] { flex: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; font-size: 0.95rem; }
+        .input-container button { background-color: #0084ff; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .input-container button:active { background-color: #006dd9; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>🤖 স্কুল স্টাডি এআই গাইড</h1>
-    </div>
+    <div class="header">স্কুল স্টাডি এআই গাইড</div>
 
     <div class="chat-container" id="chatContainer">
-        <div class="message bot-message">
-            স্বাগতম! 👋 আমি তোমার স্কুল গাইড সহকারী। পাঠ্যবই বা যেকোনো অংক/প্রশ্নের **ছবি তুলে পাঠাও** অথবা লিখে পাঠাও—আমি গাইড বইয়ের নিয়মে নিখুঁত সমাধান করে দেব!
-        </div>
+        <div class="message bot-message">হ্যালো! আমি আপনার স্টাডি এআই অ্যাসিস্ট্যান্ট। পড়াশোনা সংক্রান্ত যেকোনো প্রশ্ন আমাকে করতে পারেন।</div>
     </div>
 
     <div class="input-container">
-        <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
-        <button onclick="document.getElementById('imageInput').click()" title="ছবি তুলুন">📷</button>
-        <input type="text" id="userInput" placeholder="প্রশ্ন লেখো বা ছবি পাঠাও..." onkeypress="handleKeyPress(event)">
-        <button onclick="sendMessage()">➤</button>
+        <input type="text" id="userInput" placeholder="আপনার প্রশ্ন এখানে লিখুন..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">পাঠান</button>
     </div>
 
     <script>
-        const API_KEY = 'AQ.Ab8RN6IMSnYiTaZwa4qtP3HJwGA6JAcuaW9F6cFDFrdq-9Hzbg';
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrSfFLAyPy8rmRB7eoeTUb9lpvHuug7wZcUu7Gblj6IA4YwcYhI8pltwGUmXQmw_ny0Q/exec";
 
-        function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const base64Data = e.target.result.split(',')[1];
-                    const mimeType = file.type;
-                    
-                    const chatContainer = document.getElementById('chatContainer');
-                    const userDiv = document.createElement('div');
-                    userDiv.className = 'message user-message';
-                    userDiv.innerHTML = `<img src="${e.target.result}" class="image-preview"><br>এই প্রশ্নটির সমাধান করে দাও।`;
-                    chatContainer.appendChild(userDiv);
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                    
-                    sendToGemini("এই ছবিটির বা পাঠ্যবইয়ের প্রশ্নটির গাইড বইয়ের মতো একদম সহজ ও ধাপে ধাপে নিখুঁত সমাধান করে দাও।", base64Data, mimeType);
-                };
-                reader.readAsDataURL(file);
+        async function sendMessage() {
+            const inputField = document.getElementById('userInput');
+            const chatContainer = document.getElementById('chatContainer');
+            const userText = inputField.value.trim();
+
+            if (!userText) return;
+
+            // ইউজারের মেসেজ স্ক্রিনে যোগ করা
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.className = 'message user-message';
+            userMsgDiv.innerText = userText;
+            chatContainer.appendChild(userMsgDiv);
+
+            inputField.value = '';
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // লোডিং মেসেজ তৈরি
+            const botMsgDiv = document.createElement('div');
+            botMsgDiv.className = 'message bot-message';
+            botMsgDiv.innerText = "চিন্তা করছি...";
+            chatContainer.appendChild(botMsgDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ contents: [{ parts: [{ text: userText }] }] })
+                });
+
+                const data = await response.json();
+                
+                // জেমিনি বা অ্যাপস স্ক্রিপ্ট থেকে আসা উত্তর বের করা
+                let botReply = "দুঃখিত, কোনো উত্তর পাওয়া যায়নি।";
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    botReply = data.candidates[0].content.parts[0].text;
+                } else if (data.text) {
+                    botReply = data.text;
+                }
+
+                botMsgDiv.innerText = botReply;
+            } catch (error) {
+                botMsgDiv.innerText = "সংযোগ স্থাপন করতে সমস্যা হচ্ছে। আবার চেষ্টা করুন।";
             }
+
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
         function handleKeyPress(event) {
             if (event.key === 'Enter') {
                 sendMessage();
             }
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('userInput');
-            const text = input.value.trim();
-            if (!text) return;
-
-            const chatContainer = document.getElementById('chatContainer');
-            const userDiv = document.createElement('div');
-            userDiv.className = 'message user-message';
-            userDiv.innerText = text;
-            chatContainer.appendChild(userDiv);
-            
-            input.value = '';
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-
-            await sendToGemini(text, null, null);
-        }
-
-        async function sendToGemini(promptText, imageBase64, mimeType) {
-            const chatContainer = document.getElementById('chatContainer');
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'message bot-message';
-            loadingDiv.innerText = 'গাইড বই থেকে সমাধান তৈরি করা হচ্ছে... ⏳';
-            chatContainer.appendChild(loadingDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-
-            try {
-                let contentsArray = [];
-                let systemInstruction = "তুমি একজন অভিজ্ঞ স্কুল শিক্ষক ও গাইড বইয়ের লেখক। শিক্ষার্থীরা যখনই কোনো প্রশ্ন বা ছবি পাঠাবে, তুমি সেটির একদম সহজ, নির্ভুল এবং ধাপে ধাপে (Step-by-Step) গাইড বইয়ের স্টাইলে সুন্দরভাবে সমাধান করে দেবে।\n\n";
-                
-                let parts = [{ text: systemInstruction + "প্রশ্ন: " + promptText }];
-
-                if (imageBase64 && mimeType) {
-                    parts.push({
-                        inlineData: {
-                            mimeType: mimeType,
-                            data: imageBase64
-                        }
-                    });
-                }
-
-                contentsArray.push({ parts: parts });
-
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: contentsArray })
-                });
-
-                const data = await response.json();
-                chatContainer.removeChild(loadingDiv);
-
-                if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
-                    const replyText = data.candidates[0].content.parts[0].text;
-                    const botDiv = document.createElement('div');
-                    botDiv.className = 'message bot-message';
-                    botDiv.innerText = replyText;
-                    chatContainer.appendChild(botDiv);
-                } else {
-                    const botDiv = document.createElement('div');
-                    botDiv.className = 'message bot-message';
-                    botDiv.innerText = "দুঃখিত, উত্তর তৈরি করা যায়নি। আবার চেষ্টা করো।";
-                    chatContainer.appendChild(botDiv);
-                }
-            } catch (error) {
-                chatContainer.removeChild(loadingDiv);
-                const botDiv = document.createElement('div');
-                botDiv.className = 'message bot-message';
-                botDiv.innerText = "নেটওয়ার্ক বা সার্ভারে সমস্যা হচ্ছে। আবার চেষ্টা করুন।";
-                chatContainer.appendChild(botDiv);
-            }
-            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
     </script>
 </body>
