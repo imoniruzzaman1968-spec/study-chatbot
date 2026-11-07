@@ -29,7 +29,7 @@ function doPost(e) {
     return ContentService.createTextOutput(JSON.stringify({ text: replyText }))
       .setMimeType(ContentService.MimeType.JSON);
 
-  }, catch (error) {
+  } catch (error) {
     return ContentService.createTextOutput(JSON.stringify({ text: "ত্রুটি হয়েছে: " + error.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
   }
